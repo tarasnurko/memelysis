@@ -1,7 +1,9 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
+import { parse as parseHtml } from "node-html-parser"
 
-const parser = new XMLParser();
+
+const xmlParser = new XMLParser();
 
 const bbcFeedsUrl = "https://feeds.bbci.co.uk/news/technology/rss.xml";
 
@@ -21,7 +23,7 @@ export class NewsClient {
     }
 
     static parseBbcFeeds(bbcFeedsData: string): BBCFeed[] {
-        const parsedData = parser.parse(bbcFeedsData);
+        const parsedData = xmlParser.parse(bbcFeedsData);
 
         return parsedData?.rss?.channel?.item;
     }
@@ -36,5 +38,19 @@ export class NewsClient {
         const news = await NewsClient.getBbcFeeds();
 
         return news.slice(0, 10);
+    }
+
+    // cringe-ahh function name
+    static async getOneBbcNews(link: string): Promise<string> {
+        const res = await axios.get(link);
+
+        return NewsClient.parseOneBbcNews(res?.data)
+    }
+
+    static parseOneBbcNews(html: string): string {
+        const htmlElement = parseHtml(html);
+        const textBlocks = htmlElement.querySelectorAll('[data-component="text-block"]');
+
+        return textBlocks.reduce((acc, textBlock) => `${acc} ${textBlock.text}`, '')
     }
 }

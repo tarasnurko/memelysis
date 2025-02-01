@@ -29,7 +29,7 @@ export const contentEmbeddingsTable = pgTable("content_embeddings", {
 
 export const analysisTable = pgTable("analysis", {
     id: uuid("id").primaryKey().defaultRandom(),
-    currentTrandingStatus: currentTrandingStatusEnum("current_tranding_status").notNull(),
+    currentTrendingStatus: currentTrandingStatusEnum("current_tranding_status").notNull(),
     futureTrendPrediction: futureTrendPredictionEnum("future_trend_prediction").notNull(),
     celebrityInvolvement: celebrityInvolvementEnum("celebrity_involvement").notNull(),
     companyInvolvement: companyInvolvementEnum("company_involvement").notNull(),

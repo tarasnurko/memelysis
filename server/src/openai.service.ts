@@ -8,7 +8,6 @@ export class OpenAIService {
     private readonly client: OpenAI;
 
     constructor(protected readonly config: ConfigService) {
-        console.log(this.config.get('OPENAI_API_KEY'));
         this.client = new OpenAI({
             apiKey: this.config.get('OPENAI_API_KEY'),
         });
@@ -31,5 +30,15 @@ export class OpenAIService {
         return res.data?.[0]?.embedding
     }
 
+    async analyzeNewsForCryptoMemePotential(prompt: string): Promise<string | null> {
+        const systemPrompt = `You are a highly skilled expert with deep knowledge and expertise in cryptocurrency trends, meme tokens, celebrity involvement in crypto, market analysis, hype factors, and news impact. You have been trained to assess news articles and predict their impact on the crypto space, especially meme tokens. Your analysis should be authoritative, precise, and based on solid reasoning, with a focus on potential market shifts, future trends, and crypto adoption. Your task is to critically evaluate news articles based on relevance, influence, and trend potential.`;
+
+        const completion = await this.client.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }],
+        });
+
+        return completion.choices[0].message.content;
+    }
 
 }

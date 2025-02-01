@@ -1,16 +1,7 @@
 import * as schema from './drizzle.schema';
 
-// export type SelectEvmWallet = typeof schema.evmWallets.$inferSelect;
-// export type SelectActionSettings = typeof schema.actionsSettings.$inferSelect;
-
-// export type InsertActionSettings = typeof schema.actionsSettings.$inferInsert;
-
-// export type TableNames = Exclude<keyof typeof schema, 'actionTypeEnum'>;
-
-// export type DrizzleServiceValidateEntitiesExist = {
-//     table: TableNames;
-//     entityId: number;
-// }[];
+export type SelectContentEmbeddings = typeof schema.contentEmbeddingsTable.$inferSelect;
+export type InsertContentEmbeddings = typeof schema.contentEmbeddingsTable.$inferInsert;
 
 export enum CurrentTrendingStatus {
     NotTrending = "Not Trending",
