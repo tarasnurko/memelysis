@@ -11,13 +11,17 @@ export function enumToPgEnum<T extends Record<string, any>>(
     return Object.values(myEnum).map((value: any) => `${value}`) as any
 }
 
+console.log(process.env.DATABASE_URL);
+
 export const connectDb = async () => {
     const client = new Client({
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT!),
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
+        // connectionString: process.env.DATABASE_URL
+        host: process.env.DATABASE_HOST,
+        port: Number(process.env.DATABASE_PORT),
+        user: process.env.DATABASE_USER,
+        password: process.env.DATABASE_PASSWORD,
+        database: process.env.DATABASE_NAME,
+        // host: process.env.DATABASE_HOST,
     });
     await client.connect();
     const db = drizzle(client, { schema, casing: 'snake_case', });

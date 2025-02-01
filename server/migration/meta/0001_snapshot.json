@@ -1,0 +1,438 @@
+{
+  "id": "be9b1990-aec9-4276-b48f-44b58e5fe0be",
+  "prevId": "ba0a22e0-4c13-4a3a-ad5a-ed87af948c64",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.analysis": {
+      "name": "analysis",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "current_tranding_status": {
+          "name": "current_tranding_status",
+          "type": "currentTrandingStatusEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "future_trend_prediction": {
+          "name": "future_trend_prediction",
+          "type": "futureTrendPredictionEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "celebrity_involvement": {
+          "name": "celebrity_involvement",
+          "type": "celebrityInvolvementEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "company_involvement": {
+          "name": "company_involvement",
+          "type": "companyInvolvementEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "regulatory_impact": {
+          "name": "regulatory_impact",
+          "type": "regulatoryImpactEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical_similarity": {
+          "name": "historical_similarity",
+          "type": "historicalSimilarity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "crypto_adoption_impact": {
+          "name": "crypto_adoption_impact",
+          "type": "cryptoAdoptionImpactEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hype_factor": {
+          "name": "hype_factor",
+          "type": "hypeFactorEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meme_token_potential": {
+          "name": "meme_token_potential",
+          "type": "memeTokenPotential",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.content_embeddings": {
+      "name": "content_embeddings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "embedding": {
+          "name": "embedding",
+          "type": "vector(1536)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "embedding_index": {
+          "name": "embedding_index",
+          "columns": [
+            {
+              "expression": "embedding",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "vector_cosine_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "hnsw",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.news": {
+      "name": "news",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "excerpt": {
+          "name": "excerpt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topic_id": {
+          "name": "topic_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "analysis_id": {
+          "name": "analysis_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "news_topic_id_content_embeddings_id_fk": {
+          "name": "news_topic_id_content_embeddings_id_fk",
+          "tableFrom": "news",
+          "tableTo": "content_embeddings",
+          "columnsFrom": [
+            "topic_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "news_analysis_id_analysis_id_fk": {
+          "name": "news_analysis_id_analysis_id_fk",
+          "tableFrom": "news",
+          "tableTo": "analysis",
+          "columnsFrom": [
+            "analysis_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tokens": {
+      "name": "tokens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "news_id": {
+          "name": "news_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "symbol": {
+          "name": "symbol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tokens_news_id_content_embeddings_id_fk": {
+          "name": "tokens_news_id_content_embeddings_id_fk",
+          "tableFrom": "tokens",
+          "tableTo": "content_embeddings",
+          "columnsFrom": [
+            "news_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.celebrityInvolvementEnum": {
+      "name": "celebrityInvolvementEnum",
+      "schema": "public",
+      "values": [
+        "No",
+        "Indirectly",
+        "Yes"
+      ]
+    },
+    "public.companyInvolvementEnum": {
+      "name": "companyInvolvementEnum",
+      "schema": "public",
+      "values": [
+        "None",
+        "Small",
+        "Medium",
+        "Large"
+      ]
+    },
+    "public.cryptoAdoptionImpactEnum": {
+      "name": "cryptoAdoptionImpactEnum",
+      "schema": "public",
+      "values": [
+        "No Impact",
+        "Small",
+        "Medium",
+        "Big",
+        "Huge"
+      ]
+    },
+    "public.currentTrandingStatusEnum": {
+      "name": "currentTrandingStatusEnum",
+      "schema": "public",
+      "values": [
+        "Not Trending",
+        "Slightly Trending",
+        "Trending",
+        "Very Trending",
+        "Viral"
+      ]
+    },
+    "public.futureTrendPredictionEnum": {
+      "name": "futureTrendPredictionEnum",
+      "schema": "public",
+      "values": [
+        "Unlikely",
+        "Possible",
+        "Likely",
+        "Very Likely"
+      ]
+    },
+    "public.historicalSimilarity": {
+      "name": "historicalSimilarity",
+      "schema": "public",
+      "values": [
+        "None",
+        "Similar but Weak Impact",
+        "Similar and Strong Impact",
+        "Similar and Game-Changing Impact"
+      ]
+    },
+    "public.hypeFactorEnum": {
+      "name": "hypeFactorEnum",
+      "schema": "public",
+      "values": [
+        "None",
+        "Mild",
+        "Moderate",
+        "High",
+        "Extreme"
+      ]
+    },
+    "public.memeTokenPotential": {
+      "name": "memeTokenPotential",
+      "schema": "public",
+      "values": [
+        "None",
+        "Slightly",
+        "Likely",
+        "Definitely"
+      ]
+    },
+    "public.regulatoryImpactEnum": {
+      "name": "regulatoryImpactEnum",
+      "schema": "public",
+      "values": [
+        "No Impact",
+        "Small",
+        "Medium",
+        "Strong",
+        "Game-Changing"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

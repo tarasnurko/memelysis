@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, pgEnum, vector, index } from "drizzle-orm/pg-core";
 import { enumToPgEnum } from "./drizzle.helpers";
 import { CelebrityInvolvement, CompanyInvolvement, CryptoAdoptionImpact, CurrentTrendingStatus, FutureTrendPrediction, HistoricalSimilarity, HypeFactor, MemeTokenPotential, RegulatoryImpact } from "./drizzle.types";
 
@@ -18,12 +18,14 @@ export const hypeFactorEnum = pgEnum('hypeFactorEnum', enumToPgEnum(HypeFactor))
 export const memeTokenPotential = pgEnum('memeTokenPotential', enumToPgEnum(MemeTokenPotential));
 
 
-export const contentEmbeddingsTable = pgTable("topics", {
+export const contentEmbeddingsTable = pgTable("content_embeddings", {
     id: uuid("id").primaryKey().defaultRandom(),
     text: text("text").notNull(),
-    embedding: text("embedding").notNull(),
+    embedding: vector('embedding', { dimensions: 1536 }),
     ...timestamps
-});
+}, (table) => ({
+    embeddingIndex: index('embedding_index').using('hnsw', table.embedding.op('vector_cosine_ops')),
+}));
 
 export const analysisTable = pgTable("analysis", {
     id: uuid("id").primaryKey().defaultRandom(),
