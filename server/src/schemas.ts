@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CelebrityInvolvement, CompanyInvolvement, CryptoAdoptionImpact, CurrentTrendingStatus, FutureTrendPrediction, HistoricalSimilarity, HypeFactor, MemeTokenPotential, RegulatoryImpact } from '../drizzle/drizzle.types';
+import { CelebrityInvolvement, CompanyInvolvement, CryptoAdoptionImpact, CurrentTrendingStatus, FutureTrendPrediction, HistoricalSimilarity, HypeFactor, MemeTokenPotential, RegulatoryImpact } from './modules/drizzle/drizzle.types';
 
 export const cryptoNewsAnalysisSchema = z.object({
     currentTrendingStatus: z.nativeEnum(CurrentTrendingStatus),

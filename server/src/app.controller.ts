@@ -9,4 +9,7 @@ export class AppController {
   health(): string {
     return this.appService.health();
   }
+
+  @Get('clusters')
+  async clusters() { }
 }

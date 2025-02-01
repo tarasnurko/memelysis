@@ -4,9 +4,9 @@ import { Cron } from '@nestjs/schedule';
 import { NewsAnalysisService } from './news-analysis.service';
 import { NewsClient } from './news-client/news.client';
 import { OpenAIService } from 'src/openai.service';
-import axios from 'axios';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { and, eq, inArray, or } from 'drizzle-orm';
+import { lower } from '../drizzle/drizzle.helpers';
 
 @Injectable()
 export class NewsAnalysisTaskService {
@@ -18,100 +18,88 @@ export class NewsAnalysisTaskService {
 
     run = false;
 
-    @Cron('* * * * * *')
+    @Cron('* * * * * *') // every second
     async updateBbsNewsAnalisys() {
+        const source = "BBC";
+
         if (this.run) return;
         this.run = true;
 
-        // const news = await NewsClient.get10LatestBbcFeeds();
+        console.log("Start processing news...")
 
-        // const lastNews = news[0];
+        const news = await NewsClient.get10LatestBbcFeeds();
 
-        // const lastNews = {
-        // title: 'Barclays customers face second day of issues after IT outage',
-        // description: "Online banking, the bank's app and payments in and out of accounts are all affected. ",
-        // link: 'https://www.bbc.com/news/articles/cd9qzg92g72o',
-        // guid: 'https://www.bbc.com/news/articles/cd9qzg92g72o#0',
-        // pubDate: 'Sat, 01 Feb 2025 15:17:05 GMT',
-        // 'media:thumbnail': ''
-        // }
+        // filter news that are not already in db
+        // find news that already have same title/description from one source (BBC)
+        const existingNewsEntities = await this.drizzle.db.select()
+            .from(this.drizzle.schema.newsTable)
+            .where(and(eq(this.drizzle.schema.newsTable.source, source), or(inArray(lower(this.drizzle.schema.newsTable.title), news.map((newsData) => newsData.title?.toLowerCase())), inArray(lower(this.drizzle.schema.newsTable.excerpt), news.map((newsData) => newsData.description?.toLowerCase())))));
 
-        const newsData = {
-            title: "'A mockery': Trump's new meme-coin sparks anger in crypto world",
-            description: "The president's meme-coin launch is being criticised as a stunt, while impatience grows for deregulation.",
-            link: 'https://www.bbc.com/news/articles/crlkjejpwr8o',
-            guid: 'https://www.bbc.com/news/articles/crlkjejpwr8o#0',
-            pubDate: 'Sat, 01 Feb 2025 15:17:05 GMT',
-        }
+        // remove those tokens that already exist
+        const fillteredNews = news.filter((item) => {
+            const existingNewsWithSameTitle = existingNewsEntities.find((newsData) => newsData.title.toLowerCase() == item.title.toLowerCase());
+            const existingNewsWithSameDescription = existingNewsEntities.find((newsData) => newsData.excerpt?.toLowerCase() == item.description.toLowerCase());
 
-        console.log(newsData);
+            return !existingNewsWithSameTitle && !existingNewsWithSameDescription;
+        })
 
-        const contentText = `${newsData.title}. ${newsData.description}`;
 
-        const embedding = await this.openAIService.createEmbedding(contentText);
+        for (const newsItem of fillteredNews) {
+            const newsTextForEmbedding = `${newsItem.title}. ${newsItem.description}`;
 
-        const existingContentEmbeddingEntity = await this.newsAnalysisService.findExistingSimilarContentByEmbedding(embedding);
+            const embedding = await this.openAIService.createEmbedding(newsTextForEmbedding);
 
-        // console.log(existingContentEmbedding)
+            let contentEmbeddingEntity = await this.newsAnalysisService.findExistingSimilarContentByEmbedding(embedding);
 
-        // if no simmilar news was saved, create new
-        if (!existingContentEmbeddingEntity) {
-            console.log("new news")
-            const newsContent = await NewsClient.getOneBbcNews(newsData.link);
-
-            console.log("analysing...")
-
-            const newsAnalysis = await this.newsAnalysisService.analyseNews(newsData.title, newsData.description, newsContent);
-
-            if (!newsAnalysis) {
-                return;
+            // if no simmilar news was saved, create new
+            if (!contentEmbeddingEntity) {
+                contentEmbeddingEntity = (await this.newsAnalysisService.createContentEmbedding(newsTextForEmbedding, embedding))[0]
             }
 
-            const contentEmbeddingEntity = await this.newsAnalysisService.createContentEmbedding(newsContent, embedding)
+            const newsContent = await NewsClient.getOneBbcNews(newsItem.link);
+
+            const newsAnalysis = await this.newsAnalysisService.analyseNews(newsItem.title, newsItem.description, newsContent);
+
+            if (!newsAnalysis) {
+                continue;
+            }
 
             const analysisEntity = await this.drizzle.db.insert(this.drizzle.schema.analysisTable).values(newsAnalysis).returning();
 
             await this.drizzle.db.insert(this.drizzle.schema.newsTable).values({
-                title: newsData.title,
-                excerpt: newsData.description,
+                title: newsItem.title,
+                excerpt: newsItem.description,
                 content: newsContent,
-                source: "BBC",
-                publishedAt: new Date(newsData.pubDate),
+                source,
+                publishedAt: new Date(newsItem.pubDate),
                 analysisId: analysisEntity[0].id,
                 contentEmbeddingId: contentEmbeddingEntity[0].id,
-            }).returning()
+            })
 
-            const possibleTokens = await this.newsAnalysisService.generateTokensFromNews(newsData.title, newsData.description, newsContent);
+            const possibleTokens = await this.newsAnalysisService.generateTokensFromNews(newsItem.title, newsItem.description, newsContent);
 
             if (!possibleTokens) {
-                return;
+                continue;
             }
 
             // find tokens that connected to current news content and have same names and/or symbols 
             const existingTokenEntities = await this.drizzle.db.select()
                 .from(this.drizzle.schema.tokensTable)
-                .where(and(eq(this.drizzle.schema.tokensTable.contentEmbeddingId, contentEmbeddingEntity[0].id), or(inArray(this.drizzle.schema.tokensTable.name, possibleTokens.map((tokenData) => tokenData.name)), inArray(this.drizzle.schema.tokensTable.symbol, possibleTokens.map((tokenData) => tokenData.symbol)))));
+                .where(and(eq(this.drizzle.schema.tokensTable.contentEmbeddingId, contentEmbeddingEntity[0].id), or(inArray(lower(this.drizzle.schema.tokensTable.name), possibleTokens.map((tokenData) => tokenData.name?.toLowerCase())), inArray(lower(this.drizzle.schema.tokensTable.symbol), possibleTokens.map((tokenData) => tokenData.symbol?.toLowerCase())))));
 
+            // remove those tokens that already exist
             const fillteredPossibleTokens = possibleTokens.filter((item) => {
-                const tokenWithSameName = existingTokenEntities.find((token) => token.name == item.name);
-                const tokenWithSameSymbol = existingTokenEntities.find((token) => token.symbol == item.symbol);
+                const tokenWithSameName = existingTokenEntities.find((token) => token.name.toLowerCase() == item.name.toLowerCase());
+                const tokenWithSameSymbol = existingTokenEntities.find((token) => token.symbol.toLowerCase() == item.symbol.toLowerCase());
 
                 return !tokenWithSameName && !tokenWithSameSymbol;
             })
 
-            await this.drizzle.db.insert(this.drizzle.schema.tokensTable).values(fillteredPossibleTokens.map((item) => ({ ...item, contentEmbeddingId: contentEmbeddingEntity[0].id }))).returning()
+            await this.drizzle.db.insert(this.drizzle.schema.tokensTable).values(fillteredPossibleTokens.map((item) => ({ name: item.name, symbol: item.symbol.toUpperCase(), contentEmbeddingId: contentEmbeddingEntity[0].id })))
         }
 
-
-
-        // console.log(newsAnalysis)
-
-
-        return;
+        console.log("All news were processed")
     }
-
-    // console.log(embedding)
-
 }
 
 

@@ -68,4 +68,3 @@ export enum MemeTokenPotential {
     Likely = "Likely",
     Definitely = "Definitely",
 }
-

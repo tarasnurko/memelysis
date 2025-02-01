@@ -13,11 +13,6 @@ export class OpenAIService {
         });
     }
 
-    async createCompletion(data: OpenAI.Chat.Completions.ChatCompletionCreateParams): Promise<OpenAI.Chat.Completions.ChatCompletion> {
-        const res = await this.client.chat.completions.create(data);
-        return res as OpenAI.Chat.Completions.ChatCompletion;
-    }
-
     async createEmbedding(value: string): Promise<number[]> {
         const input = value.replaceAll('\n', ' ');
 

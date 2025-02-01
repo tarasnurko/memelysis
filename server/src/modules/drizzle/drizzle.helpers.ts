@@ -3,6 +3,8 @@ import { Client } from 'pg';
 import 'dotenv/config';
 
 import * as schema from './drizzle.schema';
+import { AnyPgColumn } from 'drizzle-orm/pg-core';
+import { sql, SQL } from 'drizzle-orm';
 
 // https://github.com/drizzle-team/drizzle-orm/discussions/1914#discussioncomment-9600199
 export function enumToPgEnum<T extends Record<string, any>>(
@@ -10,8 +12,6 @@ export function enumToPgEnum<T extends Record<string, any>>(
 ): [T[keyof T], ...T[keyof T][]] {
     return Object.values(myEnum).map((value: any) => `${value}`) as any
 }
-
-console.log(process.env.DATABASE_URL);
 
 export const connectDb = async () => {
     const client = new Client({
@@ -27,3 +27,7 @@ export const connectDb = async () => {
     const db = drizzle(client, { schema, casing: 'snake_case', });
     return { db, client };
 };
+
+export function lower(column: AnyPgColumn): SQL {
+    return sql`lower(${column})`;
+}

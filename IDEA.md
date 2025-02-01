@@ -38,3 +38,17 @@ News {
     excerpt
     topic
 }
+
+PLAN 02.02
+Backend
+1. add functionality (configs/records) that convert text value to numerical on scale from 0 to 100
+2. add method that sumarizes every news entity in cluster (contentEmbeddingsTable) - retrieve median value and convert it to numerical
+3. add endpoint to retrieve all clusters
+4. add endpoint to retrieve cluster details
+
+Frontend
+1. add main page to show all clusters
+2. add cluster details page
+3. fetch tokens from rivens graphql with possible name and/or symbol
+
+https://api.studio.thegraph.com/query/83028/rivens-sepolia/version/latest/graphql?query=query+MyQuery+%7B%0A++tokens+%7B%0A++++name%0A++++symbol%0A++++tokenId%0A++++tradingStatus%0A++++creator%0A++%7D%0A%7D

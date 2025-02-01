@@ -5,7 +5,7 @@ import { OpenAIService } from 'src/openai.service';
 import { cosineDistance, desc, gt, sql } from 'drizzle-orm';
 import { CelebrityInvolvement, CompanyInvolvement, CryptoAdoptionImpact, CurrentTrendingStatus, FutureTrendPrediction, HistoricalSimilarity, HypeFactor, MemeTokenPotential, RegulatoryImpact, SelectContentEmbeddings } from '../drizzle/drizzle.types';
 import { arrayToPromptPoints, enumToArray, parseJsonWithSchema } from 'src/utils';
-import { CryptoNewsAnalysisSchema, cryptoNewsAnalysisSchema, TokenMetadataArraySchema, tokenMetadataArraySchema } from './schemas';
+import { CryptoNewsAnalysisSchema, cryptoNewsAnalysisSchema, TokenMetadataArraySchema, tokenMetadataArraySchema } from '../../schemas';
 
 @Injectable()
 export class NewsAnalysisService {
@@ -21,7 +21,7 @@ export class NewsAnalysisService {
          .select()
          .from(this.drizzle.schema.contentEmbeddingsTable)
          .where(gt(similarity, 0.8))
-         .orderBy((t) => desc(similarity))
+         .orderBy(desc(similarity))
          .limit(1);
 
       return similarGuides?.[0];
@@ -30,8 +30,6 @@ export class NewsAnalysisService {
    async createContentEmbedding(content: string, embedding: number[]) {
       return this.drizzle.db.insert(this.drizzle.schema.contentEmbeddingsTable).values({ text: content, embedding: embedding }).returning();
    }
-
-   async updateNewsAnalisys() { }
 
    async analyseNews(title: string, description: string, content: string): Promise<CryptoNewsAnalysisSchema | null> {
       const prompt = this.newsAnalysisPrompt(title, description, content);
