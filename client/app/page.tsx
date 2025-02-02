@@ -23,6 +23,8 @@ export default function Home() {
     }
   })
 
+  console.log(clusters)
+
   return <div className="h-full">
     <Header />
     {isLoading ? <p className="text-center text-xl">Loading...</p> : <div className="grid grid-cols-4 gap-2 p-4">

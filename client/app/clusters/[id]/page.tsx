@@ -1,6 +1,7 @@
 'use client'
 
 import { Header } from "@/components/header";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { API_URL } from "@/constants";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -24,14 +25,12 @@ export default function ClusterDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
   const { data: clusterDetails, isLoading, isError } = useQuery<ClusterDetails>({
-    queryKey: ['clusters'],
+    queryKey: ['clusters', id],
     queryFn: async () => {
       const res = await axios.get(`${API_URL}/clusters/${id}`)
       return res?.data
     }
   })
-
-  console.log(clusterDetails)
 
   return <div className="h-full">
     <Header />
@@ -63,19 +62,19 @@ export default function ClusterDetailsPage() {
         </div>
         <div className="flex gap-1 items-center">
           <span>Historical similarity:</span>
-          <span>{clusterDetails.medianValues.historicalSimilarity}</span>
+          <span>{clusterDetails?.medianValues?.historicalSimilarity}</span>
         </div>
         <div className="flex gap-1 items-center">
           <span>Crypto adoption impact:</span>
-          <span>{clusterDetails.medianValues.cryptoAdoptionImpact}</span>
+          <span>{clusterDetails?.medianValues?.cryptoAdoptionImpact}</span>
         </div>
         <div className="flex gap-1 items-center">
           <span>Hype factor:</span>
-          <span>{clusterDetails.medianValues.hypeFactor}</span>
+          <span>{clusterDetails?.medianValues?.hypeFactor}</span>
         </div>
         <div className="flex gap-1 items-center">
           <span>Meme token potential:</span>
-          <span>{clusterDetails.medianValues.memeTokenPotential}</span>
+          <span>{clusterDetails?.medianValues?.memeTokenPotential}</span>
         </div>
       </div>
       <div className="flex flex-col gap-2">
@@ -87,6 +86,19 @@ export default function ClusterDetailsPage() {
             </div>
           ))}
         </div>
+      </div>
+      <div className="flex flex-col w-full gap-2">
+        <p>News:</p>
+        {clusterDetails?.news?.map((newsDetails) => (
+          <Accordion type="single" collapsible key={newsDetails.id}>
+            <AccordionItem value={newsDetails.id}>
+              <AccordionTrigger>{newsDetails?.title}</AccordionTrigger>
+              <AccordionContent>
+                {newsDetails?.content}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        ))}
       </div>
     </div>}
   </div>
