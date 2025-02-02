@@ -37,7 +37,7 @@ export class NewsClient {
     static async get10LatestBbcFeeds(): Promise<BBCFeed[]> {
         const news = await NewsClient.getBbcFeeds();
 
-        return news.slice(0, 10);
+        return news.slice(0, 50);
     }
 
     // cringe-ahh function name

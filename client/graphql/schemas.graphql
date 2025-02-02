@@ -1,0 +1,18 @@
+query GetSimilarTokens($symbols: [String!]!, $names: [String!]!) {
+  launchedEvents(
+    where: {
+      or: [
+        { token_: { symbol_in: $symbols } }
+        { token_: { name_in: $names } }
+      ]
+    }
+  ) {
+    token {
+      id
+      creator
+      name
+      symbol
+    }
+    tokenAddress
+  }
+}

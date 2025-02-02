@@ -16,8 +16,8 @@ export class NewsAnalysisTaskService {
         protected readonly newsAnalysisService: NewsAnalysisService
     ) { }
 
-    // run = false;
-    run = true;
+    run = false;
+    // run = true;
 
     // TODO: change to every few minutes
     @Cron('* * * * * *') // every second
@@ -47,7 +47,6 @@ export class NewsAnalysisTaskService {
 
 
         for (const newsItem of fillteredNews) {
-            console.log(newsItem)
             const newsTextForEmbedding = `${newsItem.title}. ${newsItem.description}`;
 
             const embedding = await this.openAIService.createEmbedding(newsTextForEmbedding);
@@ -81,8 +80,6 @@ export class NewsAnalysisTaskService {
             })
 
             const possibleTokens = await this.newsAnalysisService.generateTokensFromNews(newsItem.title, newsItem.description, newsContent);
-
-            console.log(possibleTokens)
 
             if (!possibleTokens || !possibleTokens.length) {
                 console.log("Failed to parse possible tokens")

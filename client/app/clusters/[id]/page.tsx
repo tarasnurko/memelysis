@@ -7,6 +7,10 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useParams } from 'next/navigation'
 
+import request from 'graphql-request'
+import { GetSimilarTokensDocument } from "@/gql/graphql";
+import { useMemo } from "react";
+
 interface ClusterDetails {
   id: string;
   text: string;
@@ -30,6 +34,23 @@ export default function ClusterDetailsPage() {
       const res = await axios.get(`${API_URL}/clusters/${id}`)
       return res?.data
     }
+  })
+
+  const tokenMetadatas = useMemo(() => {
+    if (!clusterDetails || !clusterDetails?.tokens || !clusterDetails?.tokens?.length) return { names: [], symbols: [] };
+
+    return { names: clusterDetails.tokens.map((token) => token.name), symbols: clusterDetails.tokens.map((token) => token.symbol) };
+  }, [clusterDetails])
+
+  const { data: rivensAiTokensData } = useQuery({
+    enabled: !!clusterDetails,
+    queryKey: ['rivensAiTokens'],
+    queryFn: async () =>
+      request(
+        'https://api.studio.thegraph.com/query/83028/rivens-sepolia/version/latest',
+        GetSimilarTokensDocument,
+        tokenMetadatas,
+      ),
   })
 
   return <div className="h-full">
@@ -83,6 +104,16 @@ export default function ClusterDetailsPage() {
           {clusterDetails?.tokens?.map((token) => (
             <div className="" key={token.id}>
               Name: {token.name} | Symbol: {token.symbol}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col w-full gap-2">
+        <p>RivensAI suggested tokens:</p>
+        <div className="flex flex-col">
+          {rivensAiTokensData && rivensAiTokensData?.launchedEvents?.map((launchEvent) => (
+            <div className="" key={launchEvent?.token?.id}>
+              Name: {launchEvent?.token.name} | Symbol: {launchEvent?.token.symbol} | Creator: {launchEvent?.token.creator} | Address: {launchEvent?.tokenAddress}
             </div>
           ))}
         </div>

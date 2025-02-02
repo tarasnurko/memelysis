@@ -52,8 +52,6 @@ export class NewsAnalysisService {
       const prompt = this.newsTokensPrompt(title, description, content);
       const analysisString = await this.openAIService.analyzeNewsForCryptoMemePotential(prompt);
 
-      console.log(analysisString)
-
       if (!analysisString) {
          return null;
       }
