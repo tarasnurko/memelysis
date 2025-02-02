@@ -63,6 +63,14 @@ Imagine you are crypto meme trader or just average web3 person that want to buy 
 - **Meme token creators** generating token ideas based on trending topics.  
 - **Investors** assessing the viral potential of news-driven crypto movements.  
 
+## RivensAI platfom integration
+
+On cluster details page cluster can have suggested token metadatas (name, symbol). We are using GraphQL to retrieve tokens launched on RivensAI that contain one of suggested names or symbols, and show user it's address so user can go to platform and buy it (there is np link to token page on rivens because I coulnd't manage to find api where I can retrieve token page uuid by providing token address, so we just show address of token and symbol launched on rivens)
+
+## Diagram
+
+![Diagram.png](https://raw.githubusercontent.com/tarasnurko/memelysis/main/Diagram.png)
+
 ## App Images
 
 To get imagine about app go to [images folder](https://github.com/tarasnurko/memelysis/tree/main/images)
