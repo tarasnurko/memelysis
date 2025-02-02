@@ -16,8 +16,10 @@ export class NewsAnalysisTaskService {
         protected readonly newsAnalysisService: NewsAnalysisService
     ) { }
 
-    run = false;
+    // run = false;
+    run = true;
 
+    // TODO: change to every few minutes
     @Cron('* * * * * *') // every second
     async updateBbsNewsAnalisys() {
         const source = "BBC";
@@ -25,9 +27,9 @@ export class NewsAnalysisTaskService {
         if (this.run) return;
         this.run = true;
 
-        console.log("Start processing news...")
-
         const news = await NewsClient.get10LatestBbcFeeds();
+
+        console.log("Start processing news...")
 
         // filter news that are not already in db
         // find news that already have same title/description from one source (BBC)
@@ -45,6 +47,7 @@ export class NewsAnalysisTaskService {
 
 
         for (const newsItem of fillteredNews) {
+            console.log(newsItem)
             const newsTextForEmbedding = `${newsItem.title}. ${newsItem.description}`;
 
             const embedding = await this.openAIService.createEmbedding(newsTextForEmbedding);
@@ -61,6 +64,7 @@ export class NewsAnalysisTaskService {
             const newsAnalysis = await this.newsAnalysisService.analyseNews(newsItem.title, newsItem.description, newsContent);
 
             if (!newsAnalysis) {
+                console.log("Failed to parse news analysis")
                 continue;
             }
 
@@ -73,19 +77,22 @@ export class NewsAnalysisTaskService {
                 source,
                 publishedAt: new Date(newsItem.pubDate),
                 analysisId: analysisEntity[0].id,
-                contentEmbeddingId: contentEmbeddingEntity[0].id,
+                contentEmbeddingId: contentEmbeddingEntity.id,
             })
 
             const possibleTokens = await this.newsAnalysisService.generateTokensFromNews(newsItem.title, newsItem.description, newsContent);
 
-            if (!possibleTokens) {
+            console.log(possibleTokens)
+
+            if (!possibleTokens || !possibleTokens.length) {
+                console.log("Failed to parse possible tokens")
                 continue;
             }
 
             // find tokens that connected to current news content and have same names and/or symbols 
             const existingTokenEntities = await this.drizzle.db.select()
                 .from(this.drizzle.schema.tokensTable)
-                .where(and(eq(this.drizzle.schema.tokensTable.contentEmbeddingId, contentEmbeddingEntity[0].id), or(inArray(lower(this.drizzle.schema.tokensTable.name), possibleTokens.map((tokenData) => tokenData.name?.toLowerCase())), inArray(lower(this.drizzle.schema.tokensTable.symbol), possibleTokens.map((tokenData) => tokenData.symbol?.toLowerCase())))));
+                .where(and(eq(this.drizzle.schema.tokensTable.contentEmbeddingId, contentEmbeddingEntity.id), or(inArray(lower(this.drizzle.schema.tokensTable.name), possibleTokens.map((tokenData) => tokenData.name?.toLowerCase())), inArray(lower(this.drizzle.schema.tokensTable.symbol), possibleTokens.map((tokenData) => tokenData.symbol?.toLowerCase())))));
 
             // remove those tokens that already exist
             const fillteredPossibleTokens = possibleTokens.filter((item) => {
@@ -95,7 +102,7 @@ export class NewsAnalysisTaskService {
                 return !tokenWithSameName && !tokenWithSameSymbol;
             })
 
-            await this.drizzle.db.insert(this.drizzle.schema.tokensTable).values(fillteredPossibleTokens.map((item) => ({ name: item.name, symbol: item.symbol.toUpperCase(), contentEmbeddingId: contentEmbeddingEntity[0].id })))
+            await this.drizzle.db.insert(this.drizzle.schema.tokensTable).values(fillteredPossibleTokens.map((item) => ({ name: item.name, symbol: item.symbol.toUpperCase(), contentEmbeddingId: contentEmbeddingEntity.id })))
         }
 
         console.log("All news were processed")

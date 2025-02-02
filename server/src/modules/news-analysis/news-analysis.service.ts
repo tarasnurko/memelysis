@@ -52,6 +52,8 @@ export class NewsAnalysisService {
       const prompt = this.newsTokensPrompt(title, description, content);
       const analysisString = await this.openAIService.analyzeNewsForCryptoMemePotential(prompt);
 
+      console.log(analysisString)
+
       if (!analysisString) {
          return null;
       }
@@ -131,43 +133,36 @@ export class NewsAnalysisService {
 
    newsTokensPrompt(title: string, description: string, content: string) {
       return `You are an expert AI specializing in generating creative and relevant cryptocurrency token names based on news articles. 
-     
-     ### **Instructions:**
+      
+      ### **Instructions:**
       - Your task is to generate **unique, creative, and meme-worthy** cryptocurrency token names and symbols based on the given news.
       - The names should reflect the **key themes, sentiment, and viral potential** of the news.
       - Symbols should be **short (3-5 uppercase letters)** and easy to recognize in the crypto market.
-      - **If the news has no meme or crypto relevance, return an empty array []**.
-      - **If the news has minor meme potential, generate 1-2 token names**.
-      - **If the news is viral, highly memeable, or directly related to crypto, generate up to 10 token names**.
+      - **If the news has no meme or crypto relevance, return an empty array [].**
+      - **If the news has minor meme potential, generate 1-2 token names.**
+      - **If the news is viral, highly memeable, or directly related to crypto, generate up to 10 token names.**
       - **Do not create generic tokens** unrelated to the actual content.
-      - Ensure the output is **strictly in valid JSON format**.
-     
-     ---
-     ### **News to Analyze**
-     - **Title:** ${title}
-     - **Description:** ${description}
-     - **Content:** ${content}
-     
-     ---
-     ### **Response Format**
-     Your response **must be strictly in valid JSON** format, containing an **array of token objects**. Each object should have:
-     - **name** (string) → The full token name
-     - **symbol** (string) → The short token symbol
-     
-     Example output format (output below is multiple viral tokens from multiple news):
-     \`\`\`json
-     [
-       { "name": "PEPE", "symbol": "PEPE" },
-       { "name": "Goatseus Maximus", "symbol": "GOAT" },
-       { "name": "Elon for AfD", "symbol": "Elon4AfD" },
-       { "name": "Vine Coin", "symbol": "VINE" },
-       { "name": "Moo Deng", "symbol": "MOODENG" },
-       { "name": "Believe In Somethingg", "symbol": "BIS" },
-     ]
-     \`\`\`
-     
-     Now, **generate the best possible token names** based on the given news.
-     `
+      - **The response must be in strict JSON format with no additional text.**
+  
+      ---
+      ### **News to Analyze**
+      - **Title:** ${title}
+      - **Description:** ${description}
+      - **Content:** ${content}
+  
+      ---
+      ### **Response Format**
+      Respond **only with a valid JSON array of token objects**. Do **not** include explanations, markdown, or any surrounding text.  
+  
+      Expected response format:
+      
+      [
+        { "name": "PEPE", "symbol": "PEPE" },
+        { "name": "Dogecoin 2.0", "symbol": "DOGE2" }
+      ]
+  
+      Now, **generate the JSON response. Respond with only the JSON output. Do not include anything else.**`
    }
+
 
 }
