@@ -74,3 +74,11 @@ On cluster details page cluster can have suggested token metadatas (name, symbol
 ## App Images
 
 To get imagine about app go to [images folder](https://github.com/tarasnurko/memelysis/tree/main/images)
+
+## YouTube 
+
+https://youtu.be/vPgXzsENo9o
+
+## Google Slides
+
+https://docs.google.com/presentation/d/1g1Tg4qxguA42Ecrar6KEzjoEqggJTfA2miRjVIvMGz4/edit?usp=sharing
