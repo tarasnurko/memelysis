@@ -16,8 +16,8 @@ export class NewsAnalysisTaskService {
         protected readonly newsAnalysisService: NewsAnalysisService
     ) { }
 
-    run = false;
-    // run = true;
+    // run = false;
+    run = true;
 
     // TODO: change to every few minutes
     @Cron('* * * * * *') // every second
