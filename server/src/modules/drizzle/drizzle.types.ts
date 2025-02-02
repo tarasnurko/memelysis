@@ -3,6 +3,9 @@ import * as schema from './drizzle.schema';
 export type SelectContentEmbeddings = typeof schema.contentEmbeddingsTable.$inferSelect;
 export type InsertContentEmbeddings = typeof schema.contentEmbeddingsTable.$inferInsert;
 
+export type SelectNews = typeof schema.newsTable.$inferSelect;
+export type SelectAnalysis = typeof schema.analysisTable.$inferSelect;
+
 export enum CurrentTrendingStatus {
     NotTrending = "Not Trending",
     SlightlyTrending = "Slightly Trending",
