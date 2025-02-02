@@ -63,4 +63,6 @@ Imagine you are crypto meme trader or just average web3 person that want to buy 
 - **Meme token creators** generating token ideas based on trending topics.  
 - **Investors** assessing the viral potential of news-driven crypto movements.  
 
-To get imagine about app go to "./images" folder
+## App Images
+
+To get imagine about app go to [images folder](https://github.com/tarasnurko/memelysis/tree/main/images)
